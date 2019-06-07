@@ -1,0 +1,26 @@
+.grid {
+	/* border: 1px solid red; */
+	height: 100vh;
+  overflow: hidden;
+  display: absolute;
+  align-items: center;
+  justify-content: center;
+  /* border: 1px solid #d3d3d3; */
+}
+
+/* table {
+	height: 100%;
+	width: 100%;
+}
+
+td {
+	width: 120px;
+	height: 120px;
+	border: 1px solid aqua;
+} */
+
+canvas {
+  /* border: 1px solid #d3d3d3; */
+  /* width: 512px;
+  height: 512px; */
+}
