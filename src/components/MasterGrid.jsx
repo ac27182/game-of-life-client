@@ -26,18 +26,20 @@ export class MasterGrid extends Component {
 		const gridContainer = this.refs.gridContainer
 		const ctx = this.refs.grid.getContext('2d')
 
-		console.log('absolute click from left', e.clientX - (gridContainer.clientWidth - grid.clientWidth)/2)
-		console.log('absolute click from top', e.clientY - (gridContainer.clientHeight - grid.clientHeight)/2)
 		// absolute click from left and right
 		const coordinates = [
 			e.clientX - (gridContainer.clientWidth - grid.clientWidth)/2,
 			e.clientY - (gridContainer.clientHeight - grid.clientHeight)/2
 		]
+		
+		const cSetter = (c)=> {
+			return c - c%16 + 8
+		}
 
 		ctx.fillStyle = '#00FFFF'
 		ctx.lineWidth = 0.25;
 		ctx.beginPath();
-		ctx.arc(coordinates[0], coordinates[1], 7, 0, 2*Math.PI)
+		ctx.arc(cSetter(coordinates[0]), cSetter(coordinates[1]), 7, 0, 2*Math.PI)
 		ctx.fill()
 		ctx.stroke()
 
