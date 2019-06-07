@@ -1,0 +1,6 @@
+node_modules
+makefile
+README.md
+package-json.lock
+.gitignore
+LICENSE
