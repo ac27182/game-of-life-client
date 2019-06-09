@@ -7,8 +7,7 @@ services:
       - 3000:3000
     volumes:
       - .:/app
-
-  cache:
-    image: redis:5.0.5
-    ports:
-      - 6379:3001
+  # server:
+  #   image: game-of-life-server:latest
+  #   ports:
+  #     - 3001:3001
