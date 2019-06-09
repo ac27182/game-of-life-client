@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import './MasterGrid.css'
 let connection
+const sessionColour = Math.floor(Math.random() * 16777215).toString(16)
 
 export class MasterGrid extends Component {
 	state = {
@@ -12,7 +13,7 @@ export class MasterGrid extends Component {
 		absY: 0,
 	}
 
-	gridGen = m => {
+	gridGen = () => {
 		const ctx = this.refs.grid.getContext('2d')
 		for (let x = 8; x < this.state.canvasHeight; x += 16) {
 			for (let y = 8; y < this.state.canvasWidth; y += 16) {
@@ -33,24 +34,52 @@ export class MasterGrid extends Component {
 			console.log('websocket not operational.')
 		}
 		connection.onmessage = event => {
-			const { Protocol, Payload } = JSON.parse(event.data)
-			if (Protocol === 'MP001') this.drawNode(Payload)
-			else if (Protocol === 'MP002') this.drawGrid(Payload)
+			const { MessageType, Payload } = JSON.parse(event.data)
+
+			switch (MessageType) {
+				case 'T001':
+					this.updateGrid(Payload)
+					break
+				case 'T002':
+					this.drawNode(Payload)
+					break
+				default:
+					break
+			}
 		}
 	}
 
-	drawNode = payload => {
+	/// updateGrid updates the life nodes on the grid
+	updateGrid = nodes => {
 		const ctx = this.refs.grid.getContext('2d')
-		const { absX, absY } = this.state
+		const t = c => (Number(c) + 0.5) * 16
+		ctx.clearRect(0, 0, 2048, 2048)
+		this.gridGen()
 
-		if (Number(payload)) {
-			ctx.fillStyle = '#00FFFF'
+		for (let i = 0; i < nodes.length; i += 12) {
+			const x = t(Number(nodes.substring(i, i + 3)))
+			const y = t(Number(nodes.substring(i + 3, i + 6)))
+			const hex = `#${nodes.substring(i + 6, i + 12)}`
+			ctx.fillStyle = hex
 			ctx.lineWidth = 0.25
 			ctx.beginPath()
-			ctx.arc(absX, absY, 7, 0, 2 * Math.PI)
+			ctx.arc(x, y, 7, 0, 2 * Math.PI)
 			ctx.fill()
 			ctx.stroke()
 		}
+	}
+
+	drawNode = lifeNode => {
+		// const ctx = this.refs.grid.getContext('2d')
+		// const { absX, absY } = this.state
+		// if (Number(payload)) {
+		// 	ctx.fillStyle = '#00ffff'
+		// 	ctx.lineWidth = 0.25
+		// 	ctx.beginPath()
+		// 	ctx.arc(absX, absY, 7, 0, 2 * Math.PI)
+		// 	ctx.fill()
+		// 	ctx.stroke()
+		// }
 	}
 
 	drawGrid = grid => {
@@ -83,8 +112,8 @@ export class MasterGrid extends Component {
 		const coordinateSetter = c => {
 			return c - (c % 16) + 8
 		}
-		const reduceCoordinate = c => {
-			return c / 16 - 0.5
+		const padAndReduce = c => {
+			return String(c / 16 - 0.5).padStart(3, '0')
 		}
 
 		// we generate the aabsolute pixel number of the grid for drawing
@@ -99,12 +128,8 @@ export class MasterGrid extends Component {
 		this.setState({ absX, absY })
 
 		// reduces absolute pixel number into circle number
-		console.log(reduceCoordinate(absX), reduceCoordinate(absY))
-		let request = {
-			k: `${reduceCoordinate(absX)}:${reduceCoordinate(absY)}`,
-			v: `00FFFF`,
-		}
-		request = JSON.stringify(request)
+		console.log(padAndReduce(absX), padAndReduce(absY))
+		const request = `${padAndReduce(absX)}${padAndReduce(absY)}${sessionColour}`
 		connection.send(request)
 	}
 
