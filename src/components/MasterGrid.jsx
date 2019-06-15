@@ -1,20 +1,20 @@
 import React, { Component } from 'react'
 import './MasterGrid.css'
-let connection
 const sessionColour = Math.floor(Math.random() * 16777215).toString(16)
 
 export class MasterGrid extends Component {
 	state = {
 		canvasHeight: '2048',
 		canvasWidth: '2048',
-		offset: [0, 0],
 		isDown: false,
-		absX: 0,
-		absY: 0,
+		currentCoordinates: '',
+		connection: undefined,
 	}
 
 	gridGen = () => {
-		const ctx = this.refs.grid.getContext('2d')
+		const { canvasLayer1 } = this.refs
+		const ctx = canvasLayer1.getContext('2d')
+		ctx.clearRect(0, 0, 2048, 2048)
 		for (let x = 8; x < this.state.canvasHeight; x += 16) {
 			for (let y = 8; y < this.state.canvasWidth; y += 16) {
 				ctx.lineWidth = 0.25
@@ -26,7 +26,7 @@ export class MasterGrid extends Component {
 	}
 
 	socketTest = () => {
-		connection = new WebSocket(`ws://localhost:3001/ws`)
+		const connection = new WebSocket(`ws://localhost:3001/ws`)
 		connection.onopen = () => {
 			console.log('websocket operational.')
 		}
@@ -56,26 +56,18 @@ export class MasterGrid extends Component {
 					break
 			}
 		}
+		this.setState({
+			connection,
+		})
 	}
 
 	/// updateGrid updates the life nodes on the grid
 	updateGrid = nodes => {
-		const ctx = this.refs.grid.getContext('2d')
-		const t = c => (Number(c) + 0.5) * 16
-		ctx.clearRect(0, 0, 2048, 2048)
+		const { canvasLayer1 } = this.refs
 		this.gridGen()
 		for (let coordinates in nodes) {
 			const hex = nodes[coordinates]
-			const x = t(Number(coordinates.substring(0, 3)))
-			const y = t(Number(coordinates.substring(3, 6)))
-
-			ctx.fillStyle = `#${hex}`
-			ctx.lineWidth = 0.25
-
-			ctx.beginPath()
-			ctx.arc(x, y, 7, 0, 2 * Math.PI)
-			ctx.fill()
-			ctx.stroke()
+			this.drawNode(coordinates, hex, canvasLayer1)
 		}
 	}
 
@@ -83,7 +75,7 @@ export class MasterGrid extends Component {
 		const t = c => {
 			return (Number(c) + 0.5) * 16
 		}
-		const ctx = this.refs.grid.getContext('2d')
+		const ctx = this.refs.canvasLayer1.getContext('2d')
 		ctx.clearRect(0, 0, 2048, 2048)
 		for (let k in grid) {
 			let coordinates = k.split(':')
@@ -99,46 +91,96 @@ export class MasterGrid extends Component {
 		}
 	}
 
-	// handle click handles any click on the grid and sends a request to the server
-	handleClick = e => {
-		const grid = this.refs.grid
-		const gridContainer = this.refs.gridContainer
-
-		// we generate the aabsolute pixel number of the grid for drawing
-		let absX = coordinateSetter(
-			e.clientX - (gridContainer.clientWidth - grid.clientWidth) / 2,
-		)
-		let absY = coordinateSetter(
-			e.clientY - (gridContainer.clientHeight - grid.clientHeight) / 2,
-		)
-
-		// we set the state so the absolute pixel number can be used in other functions
-		this.setState({ absX, absY })
-
-		// reduces absolute pixel number into circle number
+	handleClick = event => {
+		const { parsedCoordinates } = this.mouseEventWrapper(event)
+		const { connection } = this.state
 		const request = JSON.stringify({
 			code: 'c001',
 			payload: {
-				[`${padAndReduce(absX)}${padAndReduce(absY)}`]: sessionColour,
+				[parsedCoordinates]: sessionColour,
 			},
 		})
-		console.log(padAndReduce(absX), padAndReduce(absY))
 		connection.send(request)
 	}
 
-	hoverHandler = e => {
-		// console.log(e)
+	drawNode = (coordinates, hex, ref) => {
+		const ctx = ref.getContext('2d')
+		ctx.fillStyle = `#${hex}`
+		ctx.lineWidth = 0.25
+		coordinates = this.gridCoordinateSplitter(coordinates)
+		ctx.beginPath()
+		ctx.arc(
+			this.screenCoordinate(coordinates[0]),
+			this.screenCoordinate(coordinates[1]),
+			7,
+			0,
+			2 * Math.PI,
+		)
+		ctx.fill()
+		ctx.stroke()
 	}
+
+	showTemporaryNodes = () => {
+		const { canvasLayer2 } = this.refs
+		const { currentCoordinates } = this.state
+		const ctx = canvasLayer2.getContext('2d')
+		ctx.clearRect(0, 0, 2048, 2048)
+		this.drawNode(currentCoordinates, sessionColour, canvasLayer2)
+	}
+
+	// helper functions
+
+	gridCoordinate = c => {
+		return c - (c % 16) + 8
+	}
+
+	screenCoordinate = c => {
+		return (Number(c) + 0.5) * 16
+	}
+
+	padAndReduce = c => {
+		return String(c / 16 - 0.5).padStart(3, '0')
+	}
+
+	gridCoordinateSplitter = c => {
+		return [c.substring(0, 3), c.substring(3)]
+	}
+
+	mouseEventWrapper = event => {
+		const { canvasLayer1, gridContainer } = this.refs
+		// const gridContainer = this.refs.gridContainer
+		const absX = this.gridCoordinate(
+			event.clientX -
+				(gridContainer.clientWidth - canvasLayer1.clientWidth) / 2,
+		)
+		const absY = this.gridCoordinate(
+			event.clientY -
+				(gridContainer.clientHeight - canvasLayer1.clientHeight) / 2,
+		)
+		return {
+			parsedCoordinates: `${this.padAndReduce(absX)}${this.padAndReduce(absY)}`,
+			absX,
+			absY,
+		}
+	}
+
+	// react core functionality
 
 	render() {
 		return (
 			<div className='grid-container' ref='gridContainer'>
 				<canvas
-					ref='grid'
+					ref='canvasLayer1'
+					className='canvas-layer-1'
 					height={this.state.canvasHeight}
 					width={this.state.canvasWidth}
-					onClick={e => this.handleClick(e)}
-					onMouseOver={e => this.hoverHandler(e)}
+				/>
+				<canvas
+					ref='canvasLayer2'
+					className='canvas-layer-2'
+					height={this.state.canvasHeight}
+					width={this.state.canvasWidth}
+					onClick={event => this.handleClick(event)}
 				/>
 			</div>
 		)
@@ -147,27 +189,17 @@ export class MasterGrid extends Component {
 	componentDidMount() {
 		this.gridGen()
 		this.socketTest()
-		this.refs.grid.addEventListener('mousemove', event => {
-			console.log(mouseEventWrapper(event))
+		this.refs.canvasLayer2.addEventListener('mousemove', event => {
+			const { currentCoordinates } = this.state
+			const { parsedCoordinates } = this.mouseEventWrapper(event)
+			// const { canvasLayer2 } = this.refs
+			if (currentCoordinates !== parsedCoordinates) {
+				this.setState({
+					currentCoordinates: parsedCoordinates,
+				})
+				this.showTemporaryNodes()
+			}
 		})
-	}
-}
-
-const coordinateSetter = c => c - (c % 16) + 8
-const padAndReduce = c => String(c / 16 - 0.5).padStart(3, '0')
-const mouseEventWrapper = event => {
-	const grid = this.refs.grid
-	const gridContainer = this.refs.gridContainer
-	const absX = coordinateSetter(
-		event.clientX - (gridContainer.clientWidth - grid.clientWidth) / 2,
-	)
-	const absY = coordinateSetter(
-		event.clientY - (gridContainer.clientHeight - grid.clientHeight) / 2,
-	)
-	return {
-		parsedCoordinates: `${padAndReduce(absX)}${padAndReduce(absY)}`,
-		absX,
-		absY,
 	}
 }
 
