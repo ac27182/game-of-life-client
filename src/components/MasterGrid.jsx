@@ -38,12 +38,22 @@ export class MasterGrid extends Component {
 			console.log(payload.length / 12)
 			console.log(payload)
 			switch (code) {
-				case 'r002':
-					this.updateGrid(payload)
-					break
+				// sucessful single node update
 				case 'r001':
 					this.updateGrid(payload)
 					break
+				// unsucessful single node update
+				case 'r002':
+					this.updateGrid(payload)
+					break
+				// poll from the server
+				case 'r003':
+					this.updateGrid(payload)
+					break
+				// initial request from the server
+				// case 'r004':
+				// 	this.updateGrid(payload)
+				// 	break
 				default:
 					break
 			}
