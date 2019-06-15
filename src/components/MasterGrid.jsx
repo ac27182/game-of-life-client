@@ -35,8 +35,6 @@ export class MasterGrid extends Component {
 		}
 		connection.onmessage = event => {
 			const { code, payload } = JSON.parse(event.data)
-			// console.log(payload.length / 12)
-			console.log('payload:', payload)
 			switch (code) {
 				// sucessful single node update
 				case 'r001':
@@ -62,7 +60,6 @@ export class MasterGrid extends Component {
 
 	/// updateGrid updates the life nodes on the grid
 	updateGrid = nodes => {
-		console.log('updating grid')
 		const ctx = this.refs.grid.getContext('2d')
 		const t = c => (Number(c) + 0.5) * 16
 		ctx.clearRect(0, 0, 2048, 2048)
@@ -106,12 +103,6 @@ export class MasterGrid extends Component {
 	handleClick = e => {
 		const grid = this.refs.grid
 		const gridContainer = this.refs.gridContainer
-		const coordinateSetter = c => {
-			return c - (c % 16) + 8
-		}
-		const padAndReduce = c => {
-			return String(c / 16 - 0.5).padStart(3, '0')
-		}
 
 		// we generate the aabsolute pixel number of the grid for drawing
 		let absX = coordinateSetter(
@@ -135,6 +126,10 @@ export class MasterGrid extends Component {
 		connection.send(request)
 	}
 
+	hoverHandler = e => {
+		// console.log(e)
+	}
+
 	render() {
 		return (
 			<div className='grid-container' ref='gridContainer'>
@@ -143,6 +138,7 @@ export class MasterGrid extends Component {
 					height={this.state.canvasHeight}
 					width={this.state.canvasWidth}
 					onClick={e => this.handleClick(e)}
+					onMouseOver={e => this.hoverHandler(e)}
 				/>
 			</div>
 		)
@@ -151,6 +147,27 @@ export class MasterGrid extends Component {
 	componentDidMount() {
 		this.gridGen()
 		this.socketTest()
+		this.refs.grid.addEventListener('mousemove', event => {
+			console.log(mouseEventWrapper(event))
+		})
+	}
+}
+
+const coordinateSetter = c => c - (c % 16) + 8
+const padAndReduce = c => String(c / 16 - 0.5).padStart(3, '0')
+const mouseEventWrapper = event => {
+	const grid = this.refs.grid
+	const gridContainer = this.refs.gridContainer
+	const absX = coordinateSetter(
+		event.clientX - (gridContainer.clientWidth - grid.clientWidth) / 2,
+	)
+	const absY = coordinateSetter(
+		event.clientY - (gridContainer.clientHeight - grid.clientHeight) / 2,
+	)
+	return {
+		parsedCoordinates: `${padAndReduce(absX)}${padAndReduce(absY)}`,
+		absX,
+		absY,
 	}
 }
 
