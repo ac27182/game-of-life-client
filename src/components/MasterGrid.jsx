@@ -35,8 +35,8 @@ export class MasterGrid extends Component {
 		}
 		connection.onmessage = event => {
 			const { code, payload } = JSON.parse(event.data)
-			console.log(payload.length / 12)
-			console.log(payload)
+			// console.log(payload.length / 12)
+			console.log('payload:', payload)
 			switch (code) {
 				// sucessful single node update
 				case 'r001':
@@ -51,9 +51,9 @@ export class MasterGrid extends Component {
 					this.updateGrid(payload)
 					break
 				// initial request from the server
-				// case 'r004':
-				// 	this.updateGrid(payload)
-				// 	break
+				case 'r004':
+					this.updateGrid(payload)
+					break
 				default:
 					break
 			}
@@ -67,37 +67,19 @@ export class MasterGrid extends Component {
 		const t = c => (Number(c) + 0.5) * 16
 		ctx.clearRect(0, 0, 2048, 2048)
 		this.gridGen()
+		for (let coordinates in nodes) {
+			const hex = nodes[coordinates]
+			const x = t(Number(coordinates.substring(0, 3)))
+			const y = t(Number(coordinates.substring(3, 6)))
 
-		const g = {}
-
-		for (let i = 0; i < nodes.length; i += 12) {
-			const x = t(Number(nodes.substring(i, i + 3)))
-			const y = t(Number(nodes.substring(i + 3, i + 6)))
-			const hex = `#${nodes.substring(i + 6, i + 12)}`
-
-			g[`${x}${y}`] = hex
-
-			ctx.fillStyle = hex
+			ctx.fillStyle = `#${hex}`
 			ctx.lineWidth = 0.25
+
 			ctx.beginPath()
 			ctx.arc(x, y, 7, 0, 2 * Math.PI)
 			ctx.fill()
 			ctx.stroke()
 		}
-		console.log(g)
-	}
-
-	drawNode = lifeNode => {
-		// const ctx = this.refs.grid.getContext('2d')
-		// const { absX, absY } = this.state
-		// if (Number(payload)) {
-		// 	ctx.fillStyle = '#00ffff'
-		// 	ctx.lineWidth = 0.25
-		// 	ctx.beginPath()
-		// 	ctx.arc(absX, absY, 7, 0, 2 * Math.PI)
-		// 	ctx.fill()
-		// 	ctx.stroke()
-		// }
 	}
 
 	drawGrid = grid => {
@@ -108,9 +90,6 @@ export class MasterGrid extends Component {
 		ctx.clearRect(0, 0, 2048, 2048)
 		for (let k in grid) {
 			let coordinates = k.split(':')
-			// console.log(k, grid[k])
-			// console.log(coordinates)
-			// return
 			console.log(t(coordinates[0]), t(coordinates[1]))
 
 			ctx.fillStyle = `#${grid[k].V}`
@@ -148,10 +127,11 @@ export class MasterGrid extends Component {
 		// reduces absolute pixel number into circle number
 		const request = JSON.stringify({
 			code: 'c001',
-			payload: `${padAndReduce(absX)}${padAndReduce(absY)}${sessionColour}`,
+			payload: {
+				[`${padAndReduce(absX)}${padAndReduce(absY)}`]: sessionColour,
+			},
 		})
 		console.log(padAndReduce(absX), padAndReduce(absY))
-		console.log('request sent...')
 		connection.send(request)
 	}
 
