@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import './MasterGrid.css'
+import ChatTray from './ChatTray'
+import PatternTray from './PatternTray'
 const sessionColour = Math.floor(Math.random() * 16777215).toString(16)
 
 export class MasterGrid extends Component {
@@ -125,7 +127,44 @@ export class MasterGrid extends Component {
 		const { currentCoordinates } = this.state
 		const ctx = canvasLayer2.getContext('2d')
 		ctx.clearRect(0, 0, 2048, 2048)
-		this.drawNode(currentCoordinates, sessionColour, canvasLayer2)
+
+		const lifePattern = [
+			'000001',
+			'000002',
+			'000003',
+			'000004',
+			'000005',
+
+			'001001',
+			'001002',
+			'001003',
+			'001004',
+			'001005',
+
+			'002001',
+			'002002',
+			'002003',
+			'002004',
+			'002005',
+
+			'003001',
+			'003002',
+			'003003',
+			'003004',
+			'003005',
+
+			'004001',
+			'004002',
+			'004003',
+			'004004',
+			'004005',
+		]
+
+		lifePattern.forEach(coordinates => {
+			this.drawNode(this.transform(coordinates), sessionColour, canvasLayer2)
+		})
+
+		// this.drawNode(currentCoordinates, sessionColour, canvasLayer2)
 	}
 
 	// helper functions
@@ -140,6 +179,21 @@ export class MasterGrid extends Component {
 
 	padAndReduce = c => {
 		return String(c / 16 - 0.5).padStart(3, '0')
+	}
+
+	unpad = c => {
+		return [Number(c.substring(0, 3)), Number(c.substring(3))]
+	}
+
+	transform = coordinates => {
+		const { currentCoordinates } = this.state
+		const [c1, c2] = this.unpad(currentCoordinates)
+		const [a1, a2] = this.unpad(coordinates)
+		const transformedCoordinates = `${String(a1 + c1 - 2).padStart(
+			3,
+			'0',
+		)}${String(a2 + c2 - 3).padStart(3, '0')}`
+		return transformedCoordinates
 	}
 
 	gridCoordinateSplitter = c => {
@@ -182,6 +236,8 @@ export class MasterGrid extends Component {
 					width={this.state.canvasWidth}
 					onClick={event => this.handleClick(event)}
 				/>
+				<ChatTray />
+				<PatternTray />
 			</div>
 		)
 	}

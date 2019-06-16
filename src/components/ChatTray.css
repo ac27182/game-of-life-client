@@ -1,0 +1,10 @@
+.chat-tray {
+	z-index: 10;
+	position: absolute;
+	height: 600px;
+	width: 400px;
+	background: white;
+	opacity: 0.6;
+	right: 0;
+	top: 0;
+}
