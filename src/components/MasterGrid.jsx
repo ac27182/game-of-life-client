@@ -39,7 +39,8 @@ const lifePatterns = {
 		'004003',
 		'004004',
 	],
-	replicator: ['002001', '003002', '001003', '002003', '003003'],
+	spaceship: ['002001', '003002', '001003', '002003', '003003'],
+	blinker: ['002001', '002002', '002003'],
 }
 
 export class MasterGrid extends Component {
@@ -49,7 +50,7 @@ export class MasterGrid extends Component {
 		isDown: false,
 		currentCoordinates: '',
 		connection: undefined,
-		lifePattern: 'replicator',
+		lifePattern: 'singleNode',
 	}
 
 	gridGen = () => {
