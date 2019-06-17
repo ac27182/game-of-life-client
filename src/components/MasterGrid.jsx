@@ -132,16 +132,8 @@ export class MasterGrid extends Component {
 		}
 	}
 
-	sendLifeReqest = event => {
-		// const { parsedCoordinates } = this.mouseEventWrapper(event)
-		const { connection, currentCoordinates, lifePattern } = this.state
-		// console.log(currentCoordinates)
-		// const request = JSON.stringify({
-		// 	code: 'c001',
-		// 	payload: {
-		// 		[currentCoordinates]: sessionColour,
-		// 	},
-		// })
+	sendLifeReqest = () => {
+		const { connection, lifePattern } = this.state
 		const request = this.lifeRequestGenerator(lifePatterns[lifePattern])
 		connection.send(request)
 	}
@@ -241,6 +233,21 @@ export class MasterGrid extends Component {
 		return JSON.stringify(request)
 	}
 
+	changeLifePattern = newLifePattern => {
+		this.setState({
+			lifePattern: newLifePattern,
+		})
+	}
+
+	// mapToArray = map => {
+	// 	const arr = []
+	// 	for (let k in map) {
+	// 		arr.push({ [k]: map[k] })
+	// 	}
+	// 	console.log(arr)
+	// 	return arr
+	// }
+
 	// react core functionality
 
 	render() {
@@ -260,7 +267,12 @@ export class MasterGrid extends Component {
 					onClick={() => this.sendLifeReqest()}
 				/>
 				<ChatTray />
-				<PatternTray />
+				<PatternTray
+					lifePatterns={lifePatterns}
+					changeLifePattern={this.changeLifePattern}
+					unpad={this.unpad}
+					sessionColour={sessionColour}
+				/>
 			</div>
 		)
 	}
