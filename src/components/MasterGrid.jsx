@@ -2,7 +2,45 @@ import React, { Component } from 'react'
 import './MasterGrid.css'
 import ChatTray from './ChatTray'
 import PatternTray from './PatternTray'
-const sessionColour = Math.floor(Math.random() * 16777215).toString(16)
+const sessionColour = Math.floor(Math.random() * 16777215)
+	.toString(16)
+	.padEnd(6, '0')
+
+const lifePatterns = {
+	singleNode: ['002002'],
+	grid: [
+		'000000',
+		'000001',
+		'000002',
+		'000003',
+		'000004',
+
+		'001000',
+		'001001',
+		'001002',
+		'001003',
+		'001004',
+
+		'002000',
+		'002001',
+		'002002',
+		'002003',
+		'002004',
+
+		'003000',
+		'003001',
+		'003002',
+		'003003',
+		'003004',
+
+		'004000',
+		'004001',
+		'004002',
+		'004003',
+		'004004',
+	],
+	replicator: ['002001', '003002', '001003', '002003', '003003'],
+}
 
 export class MasterGrid extends Component {
 	state = {
@@ -11,6 +49,7 @@ export class MasterGrid extends Component {
 		isDown: false,
 		currentCoordinates: '',
 		connection: undefined,
+		lifePattern: 'replicator',
 	}
 
 	gridGen = () => {
@@ -93,15 +132,17 @@ export class MasterGrid extends Component {
 		}
 	}
 
-	handleClick = event => {
-		const { parsedCoordinates } = this.mouseEventWrapper(event)
-		const { connection } = this.state
-		const request = JSON.stringify({
-			code: 'c001',
-			payload: {
-				[parsedCoordinates]: sessionColour,
-			},
-		})
+	sendLifeReqest = event => {
+		// const { parsedCoordinates } = this.mouseEventWrapper(event)
+		const { connection, currentCoordinates, lifePattern } = this.state
+		// console.log(currentCoordinates)
+		// const request = JSON.stringify({
+		// 	code: 'c001',
+		// 	payload: {
+		// 		[currentCoordinates]: sessionColour,
+		// 	},
+		// })
+		const request = this.lifeRequestGenerator(lifePatterns[lifePattern])
 		connection.send(request)
 	}
 
@@ -124,43 +165,11 @@ export class MasterGrid extends Component {
 
 	showTemporaryNodes = () => {
 		const { canvasLayer2 } = this.refs
-		const { currentCoordinates } = this.state
+		const { lifePattern } = this.state
 		const ctx = canvasLayer2.getContext('2d')
 		ctx.clearRect(0, 0, 2048, 2048)
 
-		const lifePattern = [
-			'000001',
-			'000002',
-			'000003',
-			'000004',
-			'000005',
-
-			'001001',
-			'001002',
-			'001003',
-			'001004',
-			'001005',
-
-			'002001',
-			'002002',
-			'002003',
-			'002004',
-			'002005',
-
-			'003001',
-			'003002',
-			'003003',
-			'003004',
-			'003005',
-
-			'004001',
-			'004002',
-			'004003',
-			'004004',
-			'004005',
-		]
-
-		lifePattern.forEach(coordinates => {
+		lifePatterns[lifePattern].forEach(coordinates => {
 			this.drawNode(this.transform(coordinates), sessionColour, canvasLayer2)
 		})
 
@@ -192,7 +201,7 @@ export class MasterGrid extends Component {
 		const transformedCoordinates = `${String(a1 + c1 - 2).padStart(
 			3,
 			'0',
-		)}${String(a2 + c2 - 3).padStart(3, '0')}`
+		)}${String(a2 + c2 - 2).padStart(3, '0')}`
 		return transformedCoordinates
 	}
 
@@ -218,6 +227,20 @@ export class MasterGrid extends Component {
 		}
 	}
 
+	lifeRequestGenerator = lifePattern => {
+		const request = {
+			code: 'c001',
+			payload: {},
+		}
+		lifePattern.forEach(coordinates => {
+			coordinates = this.transform(coordinates)
+			const { payload } = request
+			payload[coordinates] = sessionColour
+		})
+		console.log(request)
+		return JSON.stringify(request)
+	}
+
 	// react core functionality
 
 	render() {
@@ -234,7 +257,7 @@ export class MasterGrid extends Component {
 					className='canvas-layer-2'
 					height={this.state.canvasHeight}
 					width={this.state.canvasWidth}
-					onClick={event => this.handleClick(event)}
+					onClick={() => this.sendLifeReqest()}
 				/>
 				<ChatTray />
 				<PatternTray />
