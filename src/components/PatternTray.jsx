@@ -5,19 +5,18 @@ import './PatternTray.css'
 export default class PatternTray extends Component {
 	render() {
 		return (
-			<div
-				ref='patternTray'
-				className='pattern-tray show'
-				onClick={() => {
-					this.togglePatternTray()
-				}}
-			>
-				<div ref='patternTrayToggle' className='pattern-tray-toggle' />
+			<div ref='patternTray' className='pattern-tray show'>
+				<div
+					ref='patternTrayToggle'
+					className='pattern-tray-toggle'
+					onClick={() => this.togglePatternTray()}
+				/>
 				{Object.keys(this.props.lifePatterns).map(lifePattern => {
 					return (
 						<canvas
 							ref={`canvas-${lifePattern}`}
 							className='pattern-tray-canvas'
+							onClick={() => this.props.changeLifePattern(lifePattern)}
 							width='80'
 							height='80'
 						/>
