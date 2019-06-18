@@ -15,10 +15,10 @@ export default class ChatTray extends Component {
 				/>
 
 				<div ref='chatTrayMessages' className='chat-tray-messages'>
-					{this.props.chatMessages.map(chatMessage => {
-						const { message, hex, timestamp } = chatMessage
+					{this.props.chatMessages.map((chatMessage, i) => {
+						const { message, hex } = chatMessage
 						return (
-							<div className='chat-tray-message'>
+							<div key={`chat-message${i}`} className='chat-tray-message'>
 								{hex} {message}
 							</div>
 						)

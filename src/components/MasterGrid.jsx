@@ -95,12 +95,12 @@ export class MasterGrid extends Component {
 				case 'r004':
 					this.updateGrid(payload)
 					break
+				// array of messages initially from the server
 				case 'r005':
-					console.log('chat messages', payload)
 					this.addMessages(payload)
 					break
+				// individual messages from the server
 				case 'r006':
-					console.log('chat message', payload)
 					this.addMessage(payload)
 					break
 				default:
@@ -144,8 +144,6 @@ export class MasterGrid extends Component {
 		ctx.clearRect(0, 0, 2048, 2048)
 		for (let k in grid) {
 			let coordinates = k.split(':')
-			console.log(t(coordinates[0]), t(coordinates[1]))
-
 			ctx.fillStyle = `#${grid[k].V}`
 			ctx.lineWidth = 0.25
 
@@ -188,8 +186,6 @@ export class MasterGrid extends Component {
 		lifePatterns[lifePattern].forEach(coordinates => {
 			this.drawNode(this.transform(coordinates), sessionColour, canvasLayer2)
 		})
-
-		// this.drawNode(currentCoordinates, sessionColour, canvasLayer2)
 	}
 
 	// helper functions
@@ -253,7 +249,6 @@ export class MasterGrid extends Component {
 			const { payload } = request
 			payload[coordinates] = sessionColour
 		})
-		console.log(request)
 		return JSON.stringify(request)
 	}
 
@@ -309,6 +304,10 @@ export class MasterGrid extends Component {
 				})
 				this.showTemporaryNodes()
 			}
+		})
+		this.refs.canvasLayer2.addEventListener('mouseleave', () => {
+			const ctx = this.refs.canvasLayer2.getContext('2d')
+			ctx.clearRect(0, 0, 2048, 2048)
 		})
 	}
 }
