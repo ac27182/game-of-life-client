@@ -51,6 +51,7 @@ export class MasterGrid extends Component {
 		currentCoordinates: '',
 		connection: undefined,
 		lifePattern: 'singleNode',
+		chatMessages: [],
 	}
 
 	gridGen = () => {
@@ -96,9 +97,11 @@ export class MasterGrid extends Component {
 					break
 				case 'r005':
 					console.log('chat messages', payload)
+					this.addMessages(payload)
 					break
 				case 'r006':
 					console.log('chat message', payload)
+					this.addMessage(payload)
 					break
 				default:
 					break
@@ -106,6 +109,20 @@ export class MasterGrid extends Component {
 		}
 		this.setState({
 			connection,
+		})
+	}
+
+	addMessages = chatMessages => {
+		this.setState({
+			chatMessages,
+		})
+	}
+
+	addMessage = chatMessage => {
+		const { chatMessages } = this.state
+		chatMessages.push(chatMessage)
+		this.setState({
+			chatMessages,
 		})
 	}
 
@@ -267,6 +284,7 @@ export class MasterGrid extends Component {
 				<ChatTray
 					sessionColour={sessionColour}
 					connection={this.state.connection}
+					chatMessages={this.state.chatMessages}
 				/>
 				<PatternTray
 					lifePatterns={lifePatterns}
