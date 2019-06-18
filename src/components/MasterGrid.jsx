@@ -76,6 +76,7 @@ export class MasterGrid extends Component {
 			console.log('websocket not operational.')
 		}
 		connection.onmessage = event => {
+			console.log(event.data)
 			const { code, payload } = JSON.parse(event.data)
 			switch (code) {
 				// sucessful single node update
@@ -93,6 +94,10 @@ export class MasterGrid extends Component {
 				// initial request from the server
 				case 'r004':
 					this.updateGrid(payload)
+					break
+
+				case 'r005':
+					console.log('chat messages', payload)
 					break
 				default:
 					break
@@ -239,15 +244,6 @@ export class MasterGrid extends Component {
 			lifePattern: newLifePattern,
 		})
 	}
-
-	// mapToArray = map => {
-	// 	const arr = []
-	// 	for (let k in map) {
-	// 		arr.push({ [k]: map[k] })
-	// 	}
-	// 	console.log(arr)
-	// 	return arr
-	// }
 
 	// react core functionality
 
