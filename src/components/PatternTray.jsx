@@ -14,6 +14,7 @@ export default class PatternTray extends Component {
 				{Object.keys(this.props.lifePatterns).map(lifePattern => {
 					return (
 						<canvas
+							key={`canvas-${lifePattern}`}
 							ref={`canvas-${lifePattern}`}
 							className='pattern-tray-canvas'
 							onClick={() => this.props.changeLifePattern(lifePattern)}

@@ -76,7 +76,6 @@ export class MasterGrid extends Component {
 			console.log('websocket not operational.')
 		}
 		connection.onmessage = event => {
-			console.log(event.data)
 			const { code, payload } = JSON.parse(event.data)
 			switch (code) {
 				// sucessful single node update
@@ -95,9 +94,11 @@ export class MasterGrid extends Component {
 				case 'r004':
 					this.updateGrid(payload)
 					break
-
 				case 'r005':
 					console.log('chat messages', payload)
+					break
+				case 'r006':
+					console.log('chat message', payload)
 					break
 				default:
 					break
@@ -263,7 +264,10 @@ export class MasterGrid extends Component {
 					width={this.state.canvasWidth}
 					onClick={() => this.sendLifeReqest()}
 				/>
-				<ChatTray />
+				<ChatTray
+					sessionColour={sessionColour}
+					connection={this.state.connection}
+				/>
 				<PatternTray
 					lifePatterns={lifePatterns}
 					changeLifePattern={this.changeLifePattern}
