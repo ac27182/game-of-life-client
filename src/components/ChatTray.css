@@ -1,10 +1,55 @@
 .chat-tray {
 	z-index: 10;
 	position: absolute;
+	display: relative;
 	height: 600px;
 	width: 400px;
 	background: white;
-	opacity: 0.6;
+	/* opacity: 0.6; */
 	right: 0;
 	top: 0;
+}
+.chat-tray.hide {
+	transform: translate3d(400px, 0, 0);
+	transition-duration: 0.75s;
+}
+.chat-tray.show {
+	transform: translate3d(0, 0, 0);
+	transition-duration: 0.75s;
+}
+
+.chat-tray-button {
+	height: 48px;
+	width: 48px;
+	border: 1px solid grey;
+	border-radius: 50%;
+	margin: auto;
+}
+.chat-tray-toggle {
+	position: absolute;
+	height: 32px;
+	width: 32px;
+	border: 1px solid grey;
+	background: white;
+	border-radius: 50%;
+	right: 400px;
+}
+
+.chat-tray-messages {
+	height: 550px;
+	width: 100%;
+	overflow-y: scroll;
+}
+
+.chat-tray-message {
+	/* overflow-x: auto; */
+	word-wrap: break-word;
+}
+
+.chat-tray-input {
+	height: 50px;
+	width: 100%;
+	display: grid;
+	grid-template-columns: 8fr 2fr;
+	/* align-content: flex-start; */
 }

@@ -51,6 +51,7 @@ export class MasterGrid extends Component {
 		currentCoordinates: '',
 		connection: undefined,
 		lifePattern: 'singleNode',
+		chatMessages: [],
 	}
 
 	gridGen = () => {
@@ -76,7 +77,6 @@ export class MasterGrid extends Component {
 			console.log('websocket not operational.')
 		}
 		connection.onmessage = event => {
-			console.log(event.data)
 			const { code, payload } = JSON.parse(event.data)
 			switch (code) {
 				// sucessful single node update
@@ -95,9 +95,13 @@ export class MasterGrid extends Component {
 				case 'r004':
 					this.updateGrid(payload)
 					break
-
+				// array of messages initially from the server
 				case 'r005':
-					console.log('chat messages', payload)
+					this.addMessages(payload)
+					break
+				// individual messages from the server
+				case 'r006':
+					this.addMessage(payload)
 					break
 				default:
 					break
@@ -105,6 +109,20 @@ export class MasterGrid extends Component {
 		}
 		this.setState({
 			connection,
+		})
+	}
+
+	addMessages = chatMessages => {
+		this.setState({
+			chatMessages,
+		})
+	}
+
+	addMessage = chatMessage => {
+		const { chatMessages } = this.state
+		chatMessages.push(chatMessage)
+		this.setState({
+			chatMessages,
 		})
 	}
 
@@ -126,8 +144,6 @@ export class MasterGrid extends Component {
 		ctx.clearRect(0, 0, 2048, 2048)
 		for (let k in grid) {
 			let coordinates = k.split(':')
-			console.log(t(coordinates[0]), t(coordinates[1]))
-
 			ctx.fillStyle = `#${grid[k].V}`
 			ctx.lineWidth = 0.25
 
@@ -170,8 +186,6 @@ export class MasterGrid extends Component {
 		lifePatterns[lifePattern].forEach(coordinates => {
 			this.drawNode(this.transform(coordinates), sessionColour, canvasLayer2)
 		})
-
-		// this.drawNode(currentCoordinates, sessionColour, canvasLayer2)
 	}
 
 	// helper functions
@@ -235,7 +249,6 @@ export class MasterGrid extends Component {
 			const { payload } = request
 			payload[coordinates] = sessionColour
 		})
-		console.log(request)
 		return JSON.stringify(request)
 	}
 
@@ -263,7 +276,11 @@ export class MasterGrid extends Component {
 					width={this.state.canvasWidth}
 					onClick={() => this.sendLifeReqest()}
 				/>
-				<ChatTray />
+				<ChatTray
+					sessionColour={sessionColour}
+					connection={this.state.connection}
+					chatMessages={this.state.chatMessages}
+				/>
 				<PatternTray
 					lifePatterns={lifePatterns}
 					changeLifePattern={this.changeLifePattern}
@@ -287,6 +304,10 @@ export class MasterGrid extends Component {
 				})
 				this.showTemporaryNodes()
 			}
+		})
+		this.refs.canvasLayer2.addEventListener('mouseleave', () => {
+			const ctx = this.refs.canvasLayer2.getContext('2d')
+			ctx.clearRect(0, 0, 2048, 2048)
 		})
 	}
 }
