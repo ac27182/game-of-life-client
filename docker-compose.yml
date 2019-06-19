@@ -7,3 +7,10 @@ services:
       - 3000:3000
     volumes:
       - .:/app
+
+  server:
+    image: game-of-life-server:latest
+    ports:
+      - 3001:3001
+    volumes:
+      - ../game-of-life-server:/go/src/github.com/ac27182/game-of-life-server/app
