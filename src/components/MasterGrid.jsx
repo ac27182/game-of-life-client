@@ -43,6 +43,8 @@ const lifePatterns = {
 	blinker: ['002001', '002002', '002003'],
 }
 
+const { SERVER_URL } = process.env
+
 export class MasterGrid extends Component {
 	state = {
 		canvasHeight: '2048',
@@ -69,7 +71,7 @@ export class MasterGrid extends Component {
 	}
 
 	socketTest = () => {
-		const connection = new WebSocket(`ws://localhost:3001/ws`)
+		const connection = new WebSocket(`ws://${SERVER_URL}/ws`)
 		connection.onopen = () => {
 			console.log('websocket operational.')
 		}

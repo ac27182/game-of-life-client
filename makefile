@@ -1,3 +1,5 @@
+IMAGE_NAME := game-of-life-client-production
+
 up:
 	@docker-compose up
 
@@ -11,4 +13,12 @@ build-client:
 
 run-client:
 	@docker run -it -p 3000:3000 game-of-life-client	
+
+heroku-deploy:
+	git push heroku master
+	# docker tag test-client registry.heroku.com/game-of-life-client/web &&\
+	# docker push registry.heroku.com/game-of-life-client/web
+
+build-prod:
+	docker build -t test-client -f prod.dockerfile .
 
