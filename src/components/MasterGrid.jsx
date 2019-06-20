@@ -71,7 +71,7 @@ export class MasterGrid extends Component {
 	}
 
 	socketTest = () => {
-		const connection = new WebSocket(`ws://${SERVER_URL}/ws`)
+		const connection = new WebSocket(`wss://${SERVER_URL}/ws`)
 		connection.onopen = () => {
 			console.log('websocket operational.')
 		}
