@@ -39,7 +39,7 @@ $ cd game-of-life-client
 $ make build-all
 ```
 
-4. run the following command to bring up the containers.
+4. run the below make command to bring up the containers.
 
 ```sh
 $ make up
@@ -47,7 +47,7 @@ $ make up
 
 5. now, the client should be running on `localhost:3000` and the server should be running on `localhost:3001`
 
-6. to test the functionality of the game open one session in your normal browser, and another in incognitio mode two simulate two sessions interacting with eachother.
+6. to test the functionality of the game open one session in your normal browser, and another in incognitio mode to simulate two sessions interacting with eachother.
 
 ---
 
