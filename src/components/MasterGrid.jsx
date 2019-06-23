@@ -69,9 +69,8 @@ export class MasterGrid extends Component {
 	}
 
 	socketTest = () => {
-		const connection = new WebSocket(
-			`wss://game-of-life-server.herokuapp.com/ws`,
-		)
+		const local = 'ws://localhost:3001/ws'
+		const connection = new WebSocket(local)
 		connection.onopen = () => {
 			console.log('websocket operational.')
 		}

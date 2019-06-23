@@ -1,5 +1,6 @@
-FROM    node:latest
+FROM    node:10.16
 WORKDIR /app
 COPY    . .
-RUN     npm install
+RUN     npm install --silent
+EXPOSE  3000
 CMD     npm start

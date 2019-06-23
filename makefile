@@ -1,4 +1,5 @@
-IMAGE_NAME := game-of-life-client-production
+CLIENT := game-of-life-client
+SERVER := game-of-life-server
 
 up:
 	@docker-compose up
@@ -6,19 +7,19 @@ up:
 build-all: build-server build-client
 
 build-server:
-	@docker build -t game-of-life-server ../game-of-life-server
+	@docker build -t $(SERVER) ../$(SERVER)
 
 build-client:
-	@docker build -t game-of-life-client .
+	@docker build -t $(CLIENT) .
 
 run-client:
-	@docker run -it -p 3000:3000 game-of-life-client	
+	@docker run -it $(CLIENT)	
 
-heroku-deploy:
-	git push heroku master
-	# docker tag test-client registry.heroku.com/game-of-life-client/web &&\
-	# docker push registry.heroku.com/game-of-life-client/web
+remove-containers:
+	@docker rm -f `docker ps -aq`
 
-build-prod:
-	docker build -t test-client -f prod.dockerfile .
+remove-images:
+	@docker rmi -f `docker images -q`
 
+check:
+	@docker images | grep "game-of-life"
