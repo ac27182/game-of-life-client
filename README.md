@@ -15,8 +15,26 @@ this repository contains the prototype client for a multiplayer verison of conwa
 - docker-compose
 - docker
 - gnu make
+- git
 
-### instructions
+---
+
+> TLDR
+
+cd into your go work repository, copy the following script into your terminal and open localhost:3000 in normal brower mode and incognito mode.
+
+```sh
+git clone https://github.com/ac27182/game-of-life-client &&\
+git clone https://github.com/ac27182/game-of-life-server &&\
+cd game-of-life-client &&\
+npm install &&\
+make build-all &&\
+make up
+```
+
+---
+
+### setup instructions
 
 1.  clone [game-of-life-client](https://github.com/ac27182/game-of-life-client) and [game-of-life-server](https://github.com/ac27182/game-of-life-server) into your go path
     eg:
@@ -39,15 +57,21 @@ $ cd game-of-life-client
 $ make build-all
 ```
 
-4. run the below make command to bring up the containers.
+4. install the package dependencies for the game of life client
+
+```sh
+$ npm install
+```
+
+5. run the below make command to bring up the containers.
 
 ```sh
 $ make up
 ```
 
-5. now, the client should be running on `localhost:3000` and the server should be running on `localhost:3001`
+6. now, the client should be running on `localhost:3000` and the server should be running on `localhost:3001`
 
-6. to test the functionality of the game open one session in your normal browser, and another in incognitio mode to simulate two sessions interacting with eachother.
+7. to test the functionality of the game open one session in your normal browser, and another in incognitio mode to simulate two sessions interacting with eachother.
 
 ---
 

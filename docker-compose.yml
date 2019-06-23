@@ -13,4 +13,4 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - ../game-of-life-server:/go/src/github.com/ac27182/game-of-life-server/app
+      - ../game-of-life-server:/go/src/github.com/ac27182/game-of-life-server/server
